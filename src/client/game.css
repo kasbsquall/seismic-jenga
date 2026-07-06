@@ -1,0 +1,878 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   SEISMIC — Arcade Brut theme
+   Near-black stage, vivid material blocks, thick outlines, one electric accent.
+───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg: #17171b;
+  --bg-2: #0f0f13;
+  --text: #ffffff;
+  --sub: #9a9aa6;
+  --accent: #ffd23d; /* electric yellow — selection / brand / you */
+  --accent-deep: #ffcf33;
+  --danger: #ff4d3d;
+  --ok: #3ddc84;
+  --warn: #ffb43d;
+  --crit: #ff3b3b;
+  --line: rgba(255, 255, 255, 0.14);
+  --card: #242430;
+  --card-2: #2c2c3a;
+  --shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  --r: 12px;
+  --display: 'Bahnschrift', 'Avenir Next Condensed', 'Futura', 'Franklin Gothic Medium',
+    'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--text);
+  background: radial-gradient(120% 80% at 50% 0%, #1e1e26 0%, var(--bg) 55%, var(--bg-2) 100%);
+  user-select: none;
+}
+
+/* subtle dot texture */
+#app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 4px 4px;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+#game-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+#game-container canvas {
+  display: block;
+}
+
+#ui {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  padding: max(12px, env(safe-area-inset-top)) 12px 12px;
+}
+
+/* scrim so the bottom controls stay legible over the tower */
+#ui::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 190px;
+  background: linear-gradient(transparent, var(--bg-2) 82%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.brand-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.brand-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+}
+.brand-ver {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--sub);
+  opacity: 0.4;
+  vertical-align: super;
+  margin-left: 3px;
+}
+.brand-sub {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-top: 3px;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.icon-btn {
+  pointer-events: auto;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+.quake-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 6px 12px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.qc-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+.qc-time {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--accent);
+}
+/* imminent quake alert */
+.quake-clock.imminent {
+  background: var(--danger);
+  box-shadow: 0 0 0 2px rgba(255, 77, 61, 0.5), 0 0 22px rgba(255, 77, 61, 0.6);
+  animation: alarm 0.7s ease-in-out infinite;
+}
+.quake-clock.imminent .qc-label,
+.quake-clock.imminent .qc-time {
+  color: #fff;
+}
+@keyframes alarm {
+  50% {
+    box-shadow: 0 0 0 3px rgba(255, 77, 61, 0.8), 0 0 34px rgba(255, 77, 61, 0.9);
+  }
+}
+
+/* ── Instability meter ───────────────────────────────────────────────────── */
+.meter {
+  margin-top: 12px;
+  pointer-events: none;
+}
+.meter-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 4px;
+}
+.meter-head span:last-child {
+  font-family: var(--mono);
+  color: var(--text);
+}
+.meter-track {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.5s ease, background 0.4s ease;
+  background: var(--ok);
+}
+.meter-fill[data-level='warn'] {
+  background: var(--warn);
+}
+.meter-fill[data-level='crit'] {
+  background: var(--crit);
+  animation: pulse 0.9s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ── "At stake" banner ───────────────────────────────────────────────────── */
+.stake-bar {
+  margin-top: 8px;
+  align-self: flex-start;
+  background: rgba(255, 210, 61, 0.12);
+  border: 1px solid rgba(255, 210, 61, 0.4);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--text);
+  pointer-events: auto;
+}
+.stake-bar[hidden] {
+  display: none;
+}
+.stake-bar b {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* ── Compact stat strip (floor · epoch · survivors) ──────────────────────── */
+.hud-strip {
+  display: flex;
+  gap: 7px;
+  align-items: stretch;
+  margin-top: 10px;
+}
+.floor-badge {
+  padding: 6px 11px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.floor-num {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+.floor-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+.epoch-badge {
+  padding: 7px 11px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+.epoch-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+.epoch-rec {
+  font-size: 9px;
+  color: var(--sub);
+  font-family: var(--mono);
+}
+
+/* ── Survivors: a button + a slide-up sheet (no overlap) ──────────────────── */
+.lb-btn {
+  pointer-events: auto;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  margin-left: auto;
+}
+.lb-btn b {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+.lb-btn:active {
+  transform: translateY(1px);
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+.sheet.show {
+  display: flex;
+}
+.sheet-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px 18px 0 0;
+  padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+  animation: sheet-up 0.28s ease;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.lb-list {
+  list-style: none;
+}
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 6px;
+  font-size: 12px;
+  border-top: 1px solid var(--line);
+}
+.lb-row.me {
+  background: rgba(255, 210, 61, 0.14);
+  border-radius: 6px;
+}
+.lb-rank {
+  width: 16px;
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 700;
+}
+.lb-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lb-score {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.lb-empty {
+  list-style: none;
+  padding: 6px;
+  font-size: 11px;
+  color: var(--sub);
+}
+.lb-total {
+  font-size: 10px;
+  color: var(--sub);
+  padding: 5px 6px 2px;
+  border-top: 1px solid var(--line);
+  margin-top: 3px;
+}
+
+/* ── Wallet ──────────────────────────────────────────────────────────────── */
+.wallet {
+  margin-top: auto;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  pointer-events: none;
+}
+.chip {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 12px;
+  box-shadow: var(--shadow);
+}
+.chip b {
+  font-family: var(--mono);
+}
+
+/* ── Build dock (compact: one row per tool) ──────────────────────────────── */
+.dock {
+  margin-top: 6px;
+  pointer-events: auto;
+}
+.dock-hint {
+  text-align: center;
+  font-size: 10px;
+  color: var(--sub);
+  margin-bottom: 5px;
+}
+.tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+.tool {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 9px 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  white-space: nowrap;
+  transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tool:focus {
+  outline: none;
+}
+.tool:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+.tool.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), var(--shadow);
+}
+.tool.locked {
+  opacity: 0.4;
+}
+.tool-swatch {
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  border: 2px solid #000;
+}
+/* swatch width mirrors the block's shape so you SEE beam=wide, pillar=narrow */
+.tool-swatch.beam {
+  width: 26px;
+  background: #ffb43d;
+}
+.tool-swatch.block {
+  width: 16px;
+  background: #3d7bff;
+}
+.tool-swatch.pillar {
+  width: 9px;
+  background: #ff3d8b;
+}
+.tool-key {
+  position: absolute;
+  top: -7px;
+  left: -6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--sub);
+  border-radius: 4px;
+  padding: 1px 4px;
+  line-height: 1.25;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.tool-name {
+  font-size: 11px;
+  font-weight: 700;
+}
+.tool-cost {
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px; /* diamond hugging the number, like the wallet chips */
+}
+.tool-cost b {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+/* ── Back-to-build pill ──────────────────────────────────────────────────── */
+.build-pill {
+  position: absolute;
+  bottom: 210px;
+  left: 12px;
+  z-index: 6;
+  pointer-events: auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1a1a12;
+  font: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 7px 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  animation: toast-in 0.2s ease;
+}
+.build-pill[hidden] {
+  display: none;
+}
+.build-pill:active {
+  transform: translateY(2px);
+}
+
+/* ── Scroll indicator (right rail) ───────────────────────────────────────── */
+.scroll-rail {
+  position: absolute;
+  right: 5px;
+  top: 30%;
+  height: 40%;
+  width: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 4;
+  pointer-events: none;
+}
+.scroll-rail[hidden] {
+  display: none;
+}
+.scroll-thumb {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0.8;
+  transition: top 0.08s linear, height 0.1s linear;
+}
+
+/* ── Floating +/- gain-loss motion graphics ──────────────────────────────── */
+.floatfx {
+  position: fixed;
+  z-index: 30;
+  transform: translate(-50%, 0);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+  pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  animation: floatfx 0.95s ease-out forwards;
+}
+.floatfx.gain {
+  color: var(--ok);
+}
+.floatfx.loss {
+  color: var(--crit);
+}
+@keyframes floatfx {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.7); }
+  20% { opacity: 1; transform: translate(-50%, -4px) scale(1.1); }
+  40% { transform: translate(-50%, -10px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -34px) scale(1); }
+}
+
+/* ── Cinematic quake ─────────────────────────────────────────────────────── */
+.quake-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(transparent 45%, rgba(255, 40, 15, 0.35));
+  box-shadow: inset 0 0 140px 50px rgba(255, 45, 20, 0.55);
+}
+.quake-flash.on {
+  animation: quake-flash 4.3s ease-out;
+}
+@keyframes quake-flash {
+  0% { opacity: 0; }
+  6% { opacity: 1; }
+  20% { opacity: 0.6; }
+  45% { opacity: 0.75; }
+  70% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+.quake-banner {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 16;
+  pointer-events: none;
+  opacity: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(30px, 9vw, 66px);
+  letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 22px #ff2a00, 3px 3px 0 var(--accent-deep), -3px -3px 0 var(--accent-deep);
+  white-space: nowrap;
+  text-align: center;
+}
+.quake-banner.on {
+  animation: quake-banner 4.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes quake-banner {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(-4deg); }
+  7% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(2deg); }
+  11% { transform: translate(-51%, -50%) scale(1) rotate(-1deg); }
+  14% { transform: translate(-49%, -50%) scale(1) rotate(1deg); }
+  17% { transform: translate(-50%, -50%) scale(1) rotate(0); }
+  82% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -53%) scale(1.06); }
+}
+
+/* ── Toasts ──────────────────────────────────────────────────────────────── */
+#toasts {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  pointer-events: none;
+  width: max-content;
+  max-width: 92vw;
+}
+.toast {
+  background: var(--card-2);
+  color: #fff;
+  padding: 8px 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  animation: toast-in 0.28s ease;
+}
+.toast.warn {
+  background: var(--warn);
+  color: #1c1a12;
+  border-color: transparent;
+}
+.toast.quake {
+  background: var(--danger);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-color: transparent;
+}
+.toast.tremor {
+  opacity: 0.62;
+  font-size: 11px;
+  padding: 5px 12px;
+  color: var(--sub);
+}
+.toast.tremor.out {
+  opacity: 0;
+}
+.toast.out {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: 0.5s ease;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* ── Report modal ────────────────────────────────────────────────────────── */
+.modal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+}
+.modal.show {
+  display: flex;
+  animation: toast-in 0.3s ease;
+}
+.modal-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  padding: 22px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+.modal-kicker {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+.modal-verdict {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 8px 0 16px;
+}
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.mg {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mg b {
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--accent);
+}
+.mg span {
+  font-size: 10px;
+  color: var(--sub);
+  letter-spacing: 0.04em;
+}
+.btn-primary {
+  width: 100%;
+  border: none;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #1a1a12;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 13px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.btn-primary:active {
+  transform: translateY(2px);
+}
+
+/* ── Scoring key (onboarding) ────────────────────────────────────────────── */
+.score-key {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 16px;
+  font-size: 11.5px;
+  color: var(--sub);
+}
+.score-key b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Onboarding steps ────────────────────────────────────────────────────── */
+.steps {
+  list-style: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 4px 0 18px;
+}
+.steps li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text);
+}
+.steps li > b {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1a1a12;
+  font-family: var(--display);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.steps li span {
+  color: var(--sub);
+  padding-top: 2px;
+}
+.steps .hl {
+  color: var(--text);
+  font-weight: 700;
+}
+.steps .hl.beam {
+  color: #ffb43d;
+}
+.steps .hl.pillar {
+  color: #ff5c9d;
+}
+
+@media (max-height: 640px) {
+  .brand-sub,
+  .dock-hint {
+    display: none;
+  }
+}

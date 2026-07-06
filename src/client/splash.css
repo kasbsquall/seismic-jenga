@@ -1,0 +1,198 @@
+/* SEISMIC — post preview (inline). Editorial paper look, same identity as the game. */
+:root {
+  --paper: #17171b;
+  --ink: #ffffff;
+  --ink-soft: #9a9aa6;
+  --accent: #ffd23d;
+  --accent-deep: #ffcf33;
+  --line: rgba(255, 255, 255, 0.14);
+  --display: 'Bahnschrift', 'Avenir Next Condensed', 'Futura', 'Franklin Gothic Medium',
+    'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: radial-gradient(120% 90% at 80% 0%, #22222c, var(--paper) 55%, #05060d);
+  overflow: hidden;
+}
+.splash-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.splash-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 6, 13, 0.94) 0%,
+    rgba(5, 6, 13, 0.82) 38%,
+    rgba(5, 6, 13, 0.45) 70%,
+    rgba(5, 6, 13, 0.3) 100%
+  );
+}
+/* starfield (behind the video) */
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.7;
+  background-image:
+    radial-gradient(1.5px 1.5px at 15% 25%, #fff, transparent),
+    radial-gradient(1px 1px at 35% 65%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 55% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 72% 45%, #ffd23d, transparent),
+    radial-gradient(1px 1px at 85% 72%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 92% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 48% 88%, #fff, transparent),
+    radial-gradient(1px 1px at 25% 80%, #fff, transparent),
+    radial-gradient(1px 1px at 65% 92%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 8% 55%, #fff, transparent);
+}
+.wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+}
+.left {
+  flex: 1;
+  min-width: 0;
+}
+.hero-logo {
+  height: clamp(64px, 16vw, 104px);
+  width: auto;
+  display: block;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+}
+.title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(30px, 8vw, 46px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 4px 0 8px;
+}
+.tag {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  max-width: 34ch;
+}
+.splash-score {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.splash-score li {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--ink);
+}
+.hello {
+  font-size: 12px;
+  color: var(--accent-deep);
+  margin-top: 8px;
+  min-height: 14px;
+}
+.cta {
+  margin-top: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #1a1a12;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255, 210, 61, 0.3);
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.cta:hover {
+  background: var(--accent-deep);
+}
+.cta:active {
+  transform: translateY(2px);
+}
+.arrow {
+  transition: transform 0.2s ease;
+}
+.cta:hover .arrow {
+  transform: translateX(3px);
+}
+
+.right {
+  flex-shrink: 0;
+}
+.clock-card {
+  background: #242430;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 132px;
+}
+.clock-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.clock {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--accent-deep);
+}
+.clock-floor {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+.clock-floor b {
+  font-family: var(--mono);
+  color: var(--ink);
+}
+
+@media (max-width: 420px) {
+  .tag {
+    display: none;
+  }
+  .wrap {
+    gap: 12px;
+    padding: 16px;
+  }
+}

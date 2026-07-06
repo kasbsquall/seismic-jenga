@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="splash.css" />
+    <title>Seismic</title>
+  </head>
+  <body>
+    <video class="splash-bg" autoplay loop muted playsinline>
+      <source src="assets/splash.mp4" type="video/mp4" />
+    </video>
+    <div class="splash-scrim"></div>
+    <div class="wrap">
+      <div class="left">
+        <img class="hero-logo" src="assets/logo.png" alt="Seismic" />
+        <h1 class="title">SEISMIC</h1>
+        <p class="tag">
+          One tower. The whole community. Stack a block — then pray it survives the quake.
+        </p>
+        <ul class="splash-score">
+          <li>💎 Drop a block</li>
+          <li>🌋 Survive the quake</li>
+          <li>★ Score by height</li>
+        </ul>
+        <p class="hello" id="greeting"></p>
+        <button id="start-button" class="cta">
+          Enter the tower<span class="arrow">→</span>
+        </button>
+      </div>
+      <div class="right">
+        <div class="clock-card">
+          <span class="clock-label">Next quake in</span>
+          <span class="clock" id="countdown">—</span>
+          <span class="clock-floor"><b id="floor">0</b> floors standing</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="splash.ts"></script>
+  </body>
+</html>

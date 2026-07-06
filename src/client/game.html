@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <link rel="stylesheet" href="game.css" />
+    <title>Seismic</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game-container"></div>
+
+      <div id="ui">
+        <!-- Top bar -->
+        <header class="topbar">
+          <div class="brand">
+            <img class="brand-logo" src="assets/logo.png" alt="Seismic" />
+            <div class="brand-text">
+              <span class="brand-name"
+                >SEISMIC<span class="brand-ver" id="brand-ver">v0.0.22</span></span
+              >
+              <span class="brand-sub">Community Tower</span>
+            </div>
+          </div>
+          <div class="top-right">
+            <button class="icon-btn" id="mute-btn" title="Sound">🔊</button>
+            <button class="icon-btn" id="help-btn" title="How to play">?</button>
+            <div class="quake-clock panel" id="quake-clock">
+              <span class="qc-label">Next quake</span>
+              <span class="qc-time" id="countdown">—</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Instability meter -->
+        <div class="meter">
+          <div class="meter-head">
+            <span>Structural stress</span>
+            <span id="inst-pct">0%</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="inst-fill" data-level="ok"></div>
+          </div>
+        </div>
+
+        <!-- What you stand to earn on the next quake -->
+        <div class="stake-bar" id="stake-bar" hidden>
+          ⏳ <b id="stake-pts">0</b> pts at stake · <span id="stake-blocks">0</span> of your blocks up
+        </div>
+
+        <!-- Compact stat strip (no overlaps) -->
+        <div class="hud-strip">
+          <div class="floor-badge panel">
+            <span class="floor-num" id="floor">0</span>
+            <span class="floor-label">floors</span>
+          </div>
+          <div class="epoch-badge panel">
+            <span class="epoch-name" id="epoch">Tower #1</span>
+            <span class="epoch-rec" id="epoch-rec">record 0</span>
+          </div>
+          <button class="lb-btn panel" id="lb-open" title="Survivors">
+            🏆 <b id="lb-mini">—</b>
+          </button>
+        </div>
+
+        <!-- Player wallet -->
+        <div class="wallet">
+          <span class="chip" title="Credits">💎 <b id="credits">0</b></span>
+          <span class="chip" title="Daily streak">🔥 <b id="streak">0</b></span>
+          <span class="chip" title="Survival score">★ <b id="score">0</b></span>
+        </div>
+
+        <!-- Build dock -->
+        <div class="dock">
+          <div class="dock-hint">Pick a block, then tap the tower to drop it. Build high — survivors score more.</div>
+          <div class="tools">
+            <button class="tool" id="tool-beam">
+              <span class="tool-key">A</span>
+              <span class="tool-swatch beam"></span>
+              <span class="tool-name">Beam</span>
+              <span class="tool-cost">💎<b>3</b></span>
+            </button>
+            <button class="tool" id="tool-block">
+              <span class="tool-key">S</span>
+              <span class="tool-swatch block"></span>
+              <span class="tool-name">Block</span>
+              <span class="tool-cost">💎<b>2</b></span>
+            </button>
+            <button class="tool" id="tool-pillar">
+              <span class="tool-key">D</span>
+              <span class="tool-swatch pillar"></span>
+              <span class="tool-name">Pillar</span>
+              <span class="tool-cost">💎<b>1</b></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vertical scroll indicator (shown when the tower is taller than the view) -->
+      <div class="scroll-rail" id="scroll-rail" hidden><div class="scroll-thumb" id="scroll-thumb"></div></div>
+
+      <!-- Back to the build zone (shown when scrolled down to inspect) -->
+      <button class="build-pill" id="build-pill" hidden>↑ Build zone</button>
+
+      <!-- Cinematic quake overlays -->
+      <div class="quake-flash" id="quake-flash"></div>
+      <div class="quake-banner" id="quake-banner"></div>
+
+      <!-- Toasts -->
+      <div id="toasts"></div>
+
+      <!-- Survivors sheet -->
+      <div class="sheet" id="lb-sheet">
+        <div class="sheet-card">
+          <div class="sheet-head">
+            <span>🏆 Survivors</span>
+            <button class="icon-btn" id="lb-close">✕</button>
+          </div>
+          <ol class="lb-list" id="lb-list">
+            <li class="lb-empty">Building…</li>
+          </ol>
+          <div class="lb-total" id="lb-total">0 blocks standing</div>
+        </div>
+      </div>
+
+      <!-- Onboarding -->
+      <div class="modal" id="onboard">
+        <div class="modal-card">
+          <div class="modal-kicker">How to play</div>
+          <div class="modal-verdict">SEISMIC</div>
+          <ul class="steps">
+            <li><b>1</b><span>Tap to stack a block on the one shared tower.</span></li>
+            <li>
+              <b>2</b
+              ><span
+                ><span class="hl beam">Beam</span> — wide &amp; safe.
+                <span class="hl pillar">Pillar</span> — narrow &amp; risky, but more points.</span
+              >
+            </li>
+            <li><b>3</b><span>Survive the quake — the higher &amp; more you lean, the more ★.</span></li>
+          </ul>
+          <button class="btn-primary" id="onboard-close">Let's build →</button>
+        </div>
+      </div>
+
+      <!-- Return report modal -->
+      <div class="modal" id="report">
+        <div class="modal-card">
+          <div class="modal-kicker">While you were away</div>
+          <div class="modal-verdict" id="rp-verdict">—</div>
+          <div class="modal-grid">
+            <div class="mg"><b id="rp-quakes">0</b><span>quakes struck</span></div>
+            <div class="mg"><b id="rp-standing">0</b><span>your blocks up</span></div>
+            <div class="mg"><b id="rp-lost">0</b><span>blocks lost</span></div>
+            <div class="mg"><b id="rp-earned">+0</b><span>score earned</span></div>
+          </div>
+          <button class="btn-primary" id="report-close">Back to building</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="game.ts"></script>
+  </body>
+</html>

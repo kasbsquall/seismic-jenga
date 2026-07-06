@@ -1,0 +1,73 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "seismic-jenga",
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "enable": true,
+      "scope": "user"
+    }
+  },
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": {
+      "default": {
+        "inline": true,
+        "entry": "splash.html"
+      },
+      "game": {
+        "entry": "game.html"
+      }
+    }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "scheduler": {
+    "tasks": {
+      "quake": {
+        "endpoint": "/internal/scheduler/quake"
+      },
+      "quake-tick": {
+        "endpoint": "/internal/scheduler/tick",
+        "cron": "* * * * *"
+      }
+    }
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Create a Seismic tower post",
+        "description": "Start a new community tower",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-create"
+      },
+      {
+        "label": "⚡ Seismic: force a quake now",
+        "description": "Testing — trigger an earthquake immediately",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/force-quake"
+      },
+      {
+        "label": "🌱 Seismic: seed a demo tower",
+        "description": "Testing — fill the tower with bot blocks",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/seed-demo"
+      }
+    ]
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "dev": {
+    "subreddit": "seismic_jenga_dev"
+  }
+}
